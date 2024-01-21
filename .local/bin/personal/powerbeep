@@ -1,0 +1,16 @@
+#!/bin/bash
+
+beep-connected() {
+	play -n synth 0.15 square 1500 vol 0.75 & sleep .15 && play -n synth 0.15 square 2000 vol 0.75
+}
+
+beep-disconnected() {
+	play -n synth 0.15 square 2000 vol 0.75 & sleep .15 && play -n synth 0.15 square 1500 vol 0.75
+}
+
+echo "$@"
+
+case $1 in
+	"connected") beep-connected;;
+	"disconnected") beep-disconnected;;
+esac

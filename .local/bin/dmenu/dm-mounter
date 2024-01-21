@@ -1,0 +1,152 @@
+#!/bin/bash
+#
+# This is a simple shell script that I wrote to help mount USB devices, both
+# encrypted and not encrypted.
+
+##
+## VARIABLES
+##
+lsblkoutput="$(lsblk -rpo "mountpoint,name,type,size")"
+lsblk_unmounted_drives="$(echo "$lsblkoutput" | awk '/^ /' | awk '/part/ {print $1, "(" $3 ")"}')"
+lsblk_mounted_drives="$(echo "$lsblkoutput" | awk '/^\// {print $1, "(" $2 ")" }')"
+dmenu_opts='-l 5 -i'
+dmenu_entry_opts="-i"
+MountBlacklistRules="/proc /sys /dev /run /bin / /home $lsblk_mounted_drives"
+mounted_mtp_devices="$(simple-mtpfs -l)"
+
+##
+## FUNCTIONS
+##
+send-mounted-notif() {
+	notify-send \
+		"Mounted Drive" \
+		"Successfully mounted <b>$1</b> at <b>$2</b>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/devices/gnome-dev-floppy.svg"
+}
+
+send-unmount-notif() {
+	notify-send \
+		"Mounted Drive" \
+		"Successfully unmounted <b>$1</b>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/devices/gnome-dev-floppy.svg"
+}
+
+send-luks-disconnected-notif() {
+	notify-send \
+		"Disconnected LUKS Drive" \
+		"Successfully disconnected LUKS Drive <b>$1</b>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/status/stock_lock.svg"
+}
+
+send-phone-mount-notif() {
+	notify-send \
+		"Mounted Phone" \
+		"Successfully mounted at <b>$1</b>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/devices/phone.svg"
+}
+
+send-phone-unmount-notif() {
+	notify-send \
+		"Disconnect Phone" \
+		"Successfully disconnected <b>$1</b>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/devices/phone.svg"
+}
+
+attempt-mount-drive() {
+	sudo mount $1 $2 2>/tmp/failed-mount && send-mounted-notif $1 $2 && exit
+
+	FailedLUKS="$(grep 'crypto_LUKS' /tmp/failed-mount)"
+	LUKSName="$(echo $1 | sed 's/\/dev\///')"
+	LUKSPassword="$(dmenu -p "Enter the password for LUKS drive $1: " $dmenu_entry_opts -P)"
+
+	echo $LUKSPassword | sudo cryptsetup open $1 $LUKSName
+	attempt-mount-luks $LUKSName $2
+}
+
+attempt-mount-luks() {
+	DrivePath="/dev/mapper/$1"
+	MountDir="$2"
+
+	sudo mount $DrivePath $MountDir && send-mounted-notif "$DrivePath" "$MountDir"
+}
+
+attempt-unmount() {
+	sudo umount $1 && send-unmount-notif $1
+}
+
+attempt-luks-unmount() {
+	sudo cryptsetup close $1 && send-luks-disconnected-notif "$1"
+}
+
+dmenu-unmount() {
+	DriveToUnmount="$(echo "$lsblk_mounted_drives" | dmenu $dmenu_opts -p "Unmount drive: ")"
+	Mountpoint="$(echo "$DriveToUnmount" | awk '{print $1}')"
+	DrivePath="$(echo "$DriveToUnmount" | awk '{print $2}')"
+	LUKSName="$(echo $DrivePath | sed 's/(\/dev\/mapper\///;s/)//')"
+
+	attempt-unmount $Mountpoint
+	attempt-luks-unmount $LUKSName
+}
+
+dmenu-mount() {
+	[ -z "$lsblk_unmounted_drives" ] && notify-send "No drives to mount" && exit
+
+	DriveToMount_Temp="$(echo "$lsblk_unmounted_drives" | dmenu $dmenu_opts -p "Mount Drive: ")"
+	[ -z "$DriveToMount_Temp" ] && notify-send "No drive selected" && exit
+
+	MountDirectory="$(printf "" | dmenu -p "Mount Where?: " $dmenu_entry_opts)"
+	[ -z "$MountDirectory" ] && notify-send "No mountpoint selected" && exit
+
+	for i in $MountBlacklistRules; do
+		[[ "$i" == "$MountDirectory" ]] && notify-send "Cannot mount here!" && exit
+	done
+	
+	DriveToMount="$(echo "$DriveToMount_Temp" | awk '{print $1}')"
+
+	attempt-mount-drive $DriveToMount $MountDirectory
+}
+
+dmenu-mount-phone() {
+	[ "$mounted_mtp_devices" = "No raw devices found." ] && notify-send "No phones detected" && exit
+
+	PhoneToMount_Temp="$(echo "$mounted_mtp_devices" | dmenu -p "Which Phone?: " $dmenu_opts)"
+	[ -z "$PhoneToMount_Temp" ] && notify-send "No phone selected" && exit
+
+	MountDirectory="$(printf "" | dmenu -p "Mount Where?: " $dmenu_opts)"
+	[ -z "$MountDirectory" ] && notify-send "No mountpoint selected" && exit
+
+	for i in $MountBlacklistRules; do
+		[[ "$i" == "$MountDirectory" ]] && notify-send "Cannot mount here!" && exit
+	done
+
+	[ ! -d "$MountDirectory" ] && mkdir -p $MountDirectory && echo "Created Mount Directory" \
+		"Made directory <b>$MountDirectory</b>"
+	PhoneToMount="$(echo "$PhoneToMount_Temp" | awk '{print $1}' | sed 's/://')"
+	simple-mtpfs --device $PhoneToMount $MountDirectory && send-phone-mount-notif $MountDirectory
+}
+
+dmenu-unmount-phone() {
+	ConnectedPhones="$(cat /proc/mounts | awk '/^simple-mtpfs/ {print $2}')"
+	[ -z "$ConnectedPhones" ] && notify-send "No Phones Mounted" && exit
+	DisconnectWhichPhone="$(echo "$ConnectedPhones" | dmenu -p "Disconnect Which Phone?: " $dmenu_opts)"
+
+	fusermount -u $DisconnectWhichPhone && send-phone-unmount-notif $DisconnectWhichPhone
+}
+
+dmenu-chooser() {
+	Choice="$(printf "Mount a Drive\nMount a Phone\nUnmount a Drive\nUnmount a Phone" | dmenu -p "What would you like to do?: " $dmenu_opts)"
+
+	case $Choice in
+		"Mount a Drive") dmenu-mount;;
+		"Mount a Phone") dmenu-mount-phone;;
+		"Unmount a Phone") dmenu-unmount-phone;;
+		"Unmount a Drive") dmenu-unmount;;
+	esac
+}
+
+dmenu-chooser

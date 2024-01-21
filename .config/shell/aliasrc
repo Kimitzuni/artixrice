@@ -1,0 +1,40 @@
+#!/bin/bash
+#        _ _                    
+#   __ _| (_) __ _ ___ _ __ ___ 
+#  / _` | | |/ _` / __| '__/ __|
+# | (_| | | | (_| \__ \ | | (__ 
+#  \__,_|_|_|\__,_|___/_|  \___|
+#
+
+##
+## ALIASES
+##
+alias \
+	ls="ls --color=auto --group-directories-first" \
+	grep="grep --color=auto" \
+	ll="ls -lh" \
+	lah="ls -lah" \
+	g="git" \
+	r="ranger" \
+	ip="ip --color=auto" \
+	mpc="mpc -h 127.0.0.1 -p 6600"
+
+##
+## FUNCTIONS
+##
+extract() {
+	[ -z "$1" ] && printf "No file provided.\n" && return
+	[ ! -f "$1" ] && printf "\033[1;96m$1\033[0m doesn't exist.\n" && return
+
+	case "$1" in
+		*".tar.gz"|*".tgz"|*".tar") tar xpf "$1";;
+		*".gz") gzip -d "$1" -v;;
+		*".lz4") lz4 -d "$1" -v;;
+		*".zip"|*".7z"|*".rar"|*".deb") 7z x "$1";;
+		*".xz") xz -d $1 -v;;
+	esac
+}
+
+hist() {
+	cat $HISTFILE | fzf | bash
+}

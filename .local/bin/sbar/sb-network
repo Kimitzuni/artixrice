@@ -1,0 +1,7 @@
+#!/bin/bash
+
+NetworkDevice="$(nmcli | awk '/ connected to / {print $1}' | sed 's/://' | head -n1)"
+CurrentNetwork="$(nmcli | grep "$NetworkDevice" | sed "s/$NetworkDevice: connected to //" | head -n1)"
+CurrentIP="$(nmcli -o device show $NetworkDevice | awk '/^IP4.ADDRESS/ {print $2}' | sed 's/\/.*//' | head -n1)"
+
+echo " 📶 $CurrentNetwork ($CurrentIP) "

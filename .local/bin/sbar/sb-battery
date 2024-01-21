@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BatteryCapacity="$(cat /sys/class/power_supply/BAT0/capacity)"
+BatteryStatus="$(cat /sys/class/power_supply/BAT0/status)"
+
+case $BatteryStatus in
+	"Charging") Prefix="🔌";;
+	"Discharging"|"Not Charging"|"Unknown") Prefix="🔋";;
+esac
+
+echo " $Prefix $BatteryCapacity% "

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+##
+## VARIABLES
+##
+EmojiList="$HOME/.local/share/emoji"
+dmenu_opts="-l 25 -i"
+NotificationID=103
+NotificationIcon="/usr/share/icons/Papirus/32x32/apps/xclipboard.svg"
+
+##
+## FUNCTIONS
+##
+dmenu-select-emoji() {
+	SelectedEmoji="$(cat "$EmojiList" | dmenu $dmenu_opts -p "Select Emoji:")"
+	[ -z "$SelectedEmoji" ] && notify-send "No Emoji Selected" && exit
+
+	CopiedEmoji="$(echo "$SelectedEmoji" | awk '{print $1}')"
+	printf "$CopiedEmoji" | xclip -i -selection clipboard
+	notify-send \
+		"Copied to clipboard" \
+		"$CopiedEmoji has been copied to the clipboard" \
+		--app-name="Emoji Picker" \
+		--replace-id="$NotificationID" \
+		--icon="$NotificationIcon"
+}
+
+dmenu-select-emoji

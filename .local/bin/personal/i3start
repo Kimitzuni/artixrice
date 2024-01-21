@@ -1,0 +1,66 @@
+#!/bin/bash
+
+##
+## VARIABLES
+##
+WallpaperFile="$HOME/.local/share/wallpaper"
+XKeyboardMap="gb"
+
+NotificationIcon_Keyboard="/usr/share/icons/Papirus/32x32/devices/keyboard.svg"
+NotificationIcon_Display="/usr/share/icons/Papirus/32x32/devices/display.svg"
+NotificationIcon_Wallpaper="/usr/share/icons/Papirus/32x32/apps/preferences-wallpaper.svg"
+NotificationIcon_Music="/usr/share/icons/Papirus/32x32/apps/multimedia-audio-player.svg"
+
+##
+## FUNCTIONS
+##
+set-wallpaper() {
+	xwallpaper --zoom $WallpaperFile
+	wal -i $WallpaperFile -n
+
+	notify-send \
+		"Wallpaper Set" \
+		"Wallpaper and colourscheme have been set" \
+		--icon="$NotificationIcon_Wallpaper"
+}
+
+set-keyboard() {
+	xset r rate 300 50
+	setxkbmap $XKeyboardMap
+	unclutter --start-hidden &
+
+	notify-send \
+		"Keyboard Layout" \
+		"The X Keyboard Layout has been set to <b>$XKeyboardMap</b>" \
+		--icon="$NotificationIcon_Keyboard"
+}
+
+set-mpd() {
+	mpd
+
+	notify-send \
+		"Music Player Daemon" \
+		"The Music Player Daemon is running at <b>127.0.0.1:6600</b>" \
+		--icon="$NotificationIcon_Music"
+}
+
+set-display() {
+	setsid xcompmgr &
+
+	IsDP2Present="$(xrandr | awk '/^DP2/ {print $2}')"
+
+	case $IsDP2Present in
+		"connected") xrandr --output LVDS1 --off && xrandr --output DP2 --mode 1920x1080;;
+	esac
+
+	notify-send \
+		"Screen Resolution" \
+		"The screen resolution has been set" \
+		--icon="$NotificationIcon_Display"
+}
+
+dunst &
+set-keyboard
+set-display
+set-wallpaper
+set-mpd

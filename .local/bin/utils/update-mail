@@ -1,0 +1,51 @@
+#!/bin/bash
+
+##
+## VARIABLES
+##
+NumberMail="$(( $(notmuch count new) + $(notmuch count unread) + $(notmuch count inbox)))"
+NotificationIcon="/usr/share/icons/Papirus/32x32/apps/email.svg"
+NotificationFailedIcon="/usr/share/icons/Papirus/32x32/apps/gnome-abrt.svg"
+NotificationAppID=100
+NotificationAppname="NeoMutt"
+
+##
+## FUNCTIONS
+##
+send-updating-notification() {
+	notify-send \
+		--icon="$NotificationIcon" \
+		--replace-id="$NotificationAppID" \
+		--app-name="$NotificationAppname" \
+		"Updating Mailbox"
+}
+
+send-updated-notification() {
+	notify-send \
+		--icon="$NotificationIcon" \
+		--replace-id="$NotificationAppID" \
+		--app-name="$NotificationAppname" \
+		"Updated Mailbox" \
+		"$NumberMail Unread Emails"
+	pkill -RTMIN+2 i3blocks
+}
+
+send-failed-notification() {
+	notify-send \
+		--icon="$NotificationFailedIcon" \
+		--replace-id="$NotificationAppID" \
+		--app-name="$NotificationAppname" \
+		"Failed to update mailbox"
+	exit
+}
+
+update-mailbox() {
+	send-updating-notification
+
+	offlineimap || send-failed-notification
+	notmuch new
+	send-updated-notification
+}
+
+update-mailbox
+

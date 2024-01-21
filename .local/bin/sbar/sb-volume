@@ -1,0 +1,11 @@
+#!/bin/bash
+
+Volume="$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | head -n1)"
+IsMuted="$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')"
+
+case $IsMuted in
+	"no") Prefix="🔊";;
+	"yes") Prefix="🔇";;
+esac
+
+echo " $Prefix $Volume "

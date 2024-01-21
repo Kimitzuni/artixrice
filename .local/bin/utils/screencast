@@ -1,0 +1,73 @@
+#!/bin/bash
+
+##
+## VARIABLES
+##
+NotificationIcon="/usr/share/icons/Papirus/32x32/apps/com.github.vkohaupt.vokoscreenNG.svg"
+NotificationID=101
+NotificationAppName="ffmpeg"
+
+FFMpegVideoSize="$(xrandr | awk '/*/ {print $1}')"
+FFMpegVideoFramerate=60
+
+##
+## FUNCTIONS
+##
+send-start-notification() {
+	notify-send \
+		--icon="$NotificationIcon" \
+		--replace-id=$NotificationID \
+		--app-name="$NotificationAppName" \
+		"Screencast Started"
+}
+
+send-finished-notification() {
+	notify-send \
+		--icon="$NotificationIcon" \
+		--replace-id=$NotificationID \
+		--app-name="$NotificationAppName" \
+		"Screencast Finished" \
+		"Screencast has been saved to <u>$1</u>"
+}
+
+file-exists() {
+	printf ">>> \033[1;93mWARNING\033[0m\n"
+	printf "    The file \033[1;92m$1\033[0m exists.\n\n"
+	printf "Overwrite? [Y/N]"
+
+	read overwrite
+
+	case $overwrite in
+		"Y"|"y"|"Yes"|"yes") rm -f "$1";;
+		"N"|"n"|"No"|"no") exit;;
+	esac
+}
+
+check-if-exists() {
+	[ -f "$1" ] && file-exists "$1"
+
+	start-screencast "$1"
+}
+
+start-screencast() {
+	printf ">>> Starting Screencast to \033[1;92m$1\033[0m\n"
+	send-start-notification
+
+	ffmpeg \
+		-video_size $FFMpegVideoSize \
+		-framerate $FFMpegVideoFramerate \
+		-f x11grab \
+		-i :0.0+0,0 \
+		-f alsa \
+		-i default \
+		-c:v libx264 \
+		-c:a flac \
+		"$1"
+}
+
+##
+######################
+##
+
+[ -z "$1" ] && printf ">>> No file provided\n" && exit
+check-if-exists "$1"

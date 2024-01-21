@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cp "$1" $HOME/.local/share/wallpaper
+rm -rf $HOME/.cache/wal
+wal -i $HOME/.local/share/wallpaper -n
+xwallpaper --zoom $HOME/.local/share/wallpaper

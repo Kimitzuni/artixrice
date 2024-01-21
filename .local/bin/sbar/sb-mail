@@ -1,0 +1,28 @@
+#!/bin/bash
+
+##
+## VARIABLES
+##
+NumberMail="$(( $(notmuch count new) + $(notmuch count unread) + $(notmuch count inbox)))"
+NotificationIcon="/usr/share/icons/Papirus/32x32/apps/email.svg"
+NotificationFailedIcon="/usr/share/icons/Papirus/32x32/apps/gnome-abrt.svg"
+NotificationAppID=100
+NotificationAppname="NeoMutt"
+
+## 
+## FUNCTIONS
+##
+send-notification() {
+	notify-send \
+		--icon="$NotificationIcon" \
+		--replace-id="$NotificationAppID" \
+		--app-name="$NotificationAppname" \
+		"$NumberMail Unread Emails"
+}
+
+case $BLOCK_BUTTON in
+	"1") send-notification;;
+	"2") update-mail;;
+esac
+
+echo " 📨 $NumberMail "
