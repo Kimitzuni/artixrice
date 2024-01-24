@@ -1,0 +1,31 @@
+[global]
+    monitor = 0
+    follow = keyboard
+    width = 300
+    height = 350
+    offset = 5x30
+    padding = 5
+    horizontal_padding = 5
+    transparency = 25
+    font = Terminess Nerd Font Mono 9
+    format = "<b>%s</b>\n%b"
+    max_icon_size = 64
+
+[urgency_low]
+    background = "#090f15"
+    foreground = "#cabfdd"
+    frame_color = "#7079c2"
+    timeout = 3
+
+[urgency_normal]
+    foreground = "#cabfdd"
+    background = "#090f15"
+    frame_color = "#bf8eb9"
+    timeout = 5
+
+[urgency_critical]
+    background = "#090f15"
+    foreground = "#cabfdd"
+    frame_color = "#5c5e9d"
+    timeout = 10
+
