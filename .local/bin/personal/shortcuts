@@ -5,15 +5,19 @@
 ##
 Shortcuts_InputFile="$HOME/.local/share/shortcuts"
 Qutebrowser_Output="$HOME/.config/qutebrowser/qute_keys.py"
-Ranger_Output="$HOME/.config/ranger/keys.conf"
-POSIX_Output="$HOME/.config/shells/dirsrc"
+Ranger_Output="$HOME/.config/ranger/rc.conf"
+POSIX_Output="$HOME/.config/shell/dirsrc"
 
 ##
 ## FUNCTIONS
 ##
+log() {
+	printf ">>> Created Shortcuts for \033[1;95m%s\033[0m\n" "$1"
+}
+
 create-qutebrowser-keys() {
 	Qutebrowser_Keys="$(awk '/^WWW/ {print "config.bind(!" $2 "!, !open", $3 "!)"}' $Shortcuts_InputFile | tr "!" "'")"
-	Qutebrowser_KeysCSV="$(awk '/^WWW/ {print $2 "," $3}' $Shortcuts_InputFile)"
+	Qutebrowser_KeysCSV="$(awk '/^WWW/ {print $2 "," $3}' $Shortcuts_InputFile | sort)"
 
 	cat << EOF > $Qutebrowser_Output
 #!/usr/bin/env python3
@@ -25,15 +29,37 @@ create-qutebrowser-keys() {
 $Qutebrowser_Keys
 EOF
 
-	
-	printf ">>> Created shortcuts for \033[1;95mqutebrowser\033[0m\n"
+	log "qutebrowser"
 	echo "$Qutebrowser_KeysCSV" > $HOME/.config/qutebrowser/keys.csv
+	cd $HOME/.config/qutebrowser
+	php homepage.php > homepage.html
 }
 
 create-posix-shortcuts() {
-	POSIX_Shortcuts="$(awk '/^FSH/ {print "alias", $2, "=\"" $3 "\""}' $Shortcuts_InputFile)"
-	echo "$POSIX_Shortcuts"
+	POSIX_Shortcuts="$(awk '/^SH/ {print "alias", $2 "=\"" $3 "\""}' $Shortcuts_InputFile)"
+
+cat << EOF > $POSIX_Output
+#!/bin/bash
+
+$POSIX_Shortcuts
+EOF
+
+	log "Bash/ZSH"
+}
+
+create-ranger-shortcuts() {
+	Ranger_Shortcuts="$(awk '/^FMG/ {print "map", $2, "cd", $3}' $Shortcuts_InputFile | sed 's/$HOME/~/g')"
+cat << EOF > $Ranger_Output
+$(cat $HOME/.config/ranger/rc_bare.conf)
+
+##
+## KEYBINDINGS
+##
+$Ranger_Shortcuts
+EOF
+	log "ranger"
 }
 
 create-qutebrowser-keys
 create-posix-shortcuts
+create-ranger-shortcuts

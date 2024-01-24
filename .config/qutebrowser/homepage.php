@@ -13,6 +13,11 @@
 			body {
 				font-family: sans-serif;
 			}
+
+			code {
+				color: var(--color4);
+				font-weight: bold;
+			}
 		</style>
 	</head>
 
