@@ -4,7 +4,6 @@ import getpass
 DownloadDirectory = f"/home/{getpass.getuser()}/stuff/dl"
 
 config.load_autoconfig()
-
 c.completion.shrink = True
 c.tabs.show = 'multiple'
 c.statusbar.show = 'in-mode'
@@ -17,15 +16,8 @@ with open(f"/home/{getpass.getuser()}/.cache/wal/colors.json") as json_data:
 c.url.start_pages = ["~/.config/qutebrowser/homepage.html"]
 c.url.default_page = "~/.config/qutebrowser/homepage.html"
 
-### Keybindings
-config.bind('xo', 'open https://odysee.com')
-config.bind('xgh', 'open https://github.com/')
-config.bind('xgl', 'open https://gitlab.com/')
-config.bind('xwg', 'open https://4chan.org/wg/')
-config.bind('xaw', 'open https://wiki.archlinux.org')
-config.bind('xaur', 'open https://aur.archlinux.org')
-config.bind('xko', 'open https://kernel.org')
-config.bind('xgko', 'open https://git.kernel.org')
+## Set keybindings (set in 'keybindings.py')
+config.source('qute_keys.py')
 config.bind('<Ctrl-h>', 'back')
 config.bind('<Ctrl-l>', 'forward')
 
@@ -67,8 +59,6 @@ config.set('colors.keyhint.fg', data["special"]["background"])
 config.set('colors.hints.fg', data["special"]["background"])
 config.set('colors.hints.match.fg', data["special"]["background"])
 config.set('colors.tooltip.fg', data["special"]["foreground"])
-
-config.set('colors.webpage.darkmode.enabled', True)
 
 ## Set Download Directory
 config.set('downloads.location.directory', DownloadDirectory)

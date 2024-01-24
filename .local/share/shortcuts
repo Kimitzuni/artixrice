@@ -1,0 +1,23 @@
+#
+# This file contains shortcuts that will be generated and
+# then can be used in multiple programs.
+#
+#
+# <TAG>	<Shortcut>	<Place>
+WWW	xo		https://odysee.com
+WWW	xgh		https://github.com
+WWW	xgl		https://gitlab.com
+WWW	xwg		https://4chan.org/wg/
+WWW	xaur		https://aur.archlinux.org
+WWW	xaw		https://wiki.archlinux.org
+WWW	xko		https://kernel.org
+WWW	xgko		https://git.kernel.org
+FSH	gwl		$HOME/stuff/wallpapers/Landscapes
+FSH	gwn		$HOME/stuff/wallpapers/Night
+FSH	gws		$HOME/stuff/wallpapers/Spacescapes
+FSH	gdx		$HOME/stuff/dox
+FSH	gdl		$HOME/stuff/dl
+FSH	gsc		$HOME/.local/bin
+FSH	gaur		$HOME/.local/aur
+FSH	gcfg		$HOME/.config
+FSH	gh		$HOME/
