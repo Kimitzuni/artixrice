@@ -7,6 +7,7 @@ Shortcuts_InputFile="$HOME/.local/share/shortcuts"
 Qutebrowser_Output="$HOME/.config/qutebrowser/qute_keys.py"
 Ranger_Output="$HOME/.config/ranger/rc.conf"
 POSIX_Output="$HOME/.config/shell/dirsrc"
+Fish_Output="$HOME/.config/fish/dirsrc"
 
 ##
 ## FUNCTIONS
@@ -60,6 +61,21 @@ EOF
 	log "ranger"
 }
 
+create-fish-shortcuts() {
+	Fish_Shortcuts="$(awk '/^SH/ {print "abbr", $2, "\"cd", $3 "\""}' $Shortcuts_InputFile)"
+
+	cat << EOF > $Fish_Output
+#!/usr/bin/fish
+#
+# Fish Shortcuts
+
+$Fish_Shortcuts
+EOF
+	
+	log "fish"
+}
+
 create-qutebrowser-keys
 create-posix-shortcuts
 create-ranger-shortcuts
+create-fish-shortcuts

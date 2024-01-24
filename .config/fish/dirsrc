@@ -1,0 +1,9 @@
+#!/usr/bin/fish
+#
+# Fish Shortcuts
+
+abbr h "cd $HOME/"
+abbr sc "cd $HOME/.local/bin"
+abbr cfg "cd $HOME/.config"
+abbr dl "cd $HOME/stuff/dl"
+abbr dox "cd $HOME/stuff/dox/"
