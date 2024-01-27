@@ -6,7 +6,7 @@
 
 export PATH="$(find ~/.local/bin/ -type d | paste -sd ':' -):$PATH"
 export EDITOR=nvim
-export BROWSER=firefox
+export BROWSER=qutebrowser
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
@@ -26,6 +26,7 @@ export LESS_TERMCAP_ue="$(printf '%b' '[0m')"
 export LESSOPEN="| /usr/bin/highlight -O ansi %s 2>/dev/null"
 export QT_QPA_PLATFORMTHEME="gtk2"
 export MOZ_USE_XINPUT2=1
+export SUDO_PROMPT="Password: "
 
 chmod a+x $HOME/.cache/wal/colors.sh
 $HOME/.cache/wal/colors.sh

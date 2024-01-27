@@ -22,3 +22,4 @@ shopt -s autocd
 HISTSIZE= HISTFILESIZE=
 
 [ -f "$HOME/.config/shell/aliasrc" ] && source $HOME/.config/shell/aliasrc
+[ -f "$HOME/.config/shell/dirsrc" ] && source $HOME/.config/shell/dirsrc

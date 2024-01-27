@@ -1,0 +1,7 @@
+#!/bin/bash
+
+alias h="$HOME/"
+alias sc="$HOME/.local/bin"
+alias cfg="$HOME/.config"
+alias dl="$HOME/stuff/dl"
+alias dox="$HOME/stuff/dox/"
