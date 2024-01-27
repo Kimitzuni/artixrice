@@ -1,14 +1,15 @@
 #!/bin/bash
 
-CapacityFile="/sys/class/power_supply/BAT0/capacity"
-BatteryCapacity="$(cat /sys/class/power_supply/BAT0/capacity)%"
-BatteryStatus="$(cat /sys/class/power_supply/BAT0/status)"
+for i in /sys/class/power_supply/BAT?; do
+	Capacity="$(cat $i/capacity)"
+	Status="$(cat $i/status)"
 
-[ ! -f "$CapacityFile" ] && BatteryCapacity="Battery Present" && Prefix="No"
+	case $(cat $i/status) in
+		"Charging") Prefix="🔌";;
+		"Discharging"|"Not charging"|"Unknown") Prefix="🔋";;
+	esac
 
-case $BatteryStatus in
-	"Charging") Prefix="🔌";;
-	"Discharging"|"Not Charging"|"Unknown") Prefix="🔋";;
-esac
+	printf " $Prefix $Capacity%% "
+done
 
-echo " $Prefix $BatteryCapacity "
+printf "\n"
