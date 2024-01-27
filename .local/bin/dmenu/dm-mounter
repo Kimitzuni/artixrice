@@ -57,6 +57,23 @@ send-phone-unmount-notif() {
 		--icon="/usr/share/icons/Papirus/32x32/devices/phone.svg"
 }
 
+send-attempt-unmount-notif() {
+	notify-send \
+		"Attempting to unmount" \
+		"Attempting to unmount <u>$1</u>" \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/devices/drive-harddisk-system.svg"
+}
+
+send-fail-unmount-notif() {
+	notify-send \
+		--urgency=critical \
+		--app-name="Drive Mounter" \
+		--icon="/usr/share/icons/Papirus/32x32/status/computer-fail.svg" \
+		"Failed to unmount $1" \
+		"Check that no programs are still open and accessing files in this directory."
+}
+
 attempt-mount-drive() {
 	sudo mount $1 $2 2>/tmp/failed-mount && send-mounted-notif $1 $2 && exit
 
@@ -76,7 +93,8 @@ attempt-mount-luks() {
 }
 
 attempt-unmount() {
-	sudo umount $1 && send-unmount-notif $1
+	send-attempt-unmount-notif "$1"
+	sudo umount $1 && send-unmount-notif $1 || send-fail-unmount-notif "$1"
 }
 
 attempt-luks-unmount() {
@@ -112,7 +130,7 @@ dmenu-mount() {
 }
 
 dmenu-mount-phone() {
-	[ "$mounted_mtp_devices" = "No raw devices found." ] && notify-send "No phones detected" && exit
+	[ -z "$mounted_mtp_devices" ] && notify-send "No phones detected" && exit
 
 	PhoneToMount_Temp="$(echo "$mounted_mtp_devices" | dmenu -p "Which Phone?: " $dmenu_opts)"
 	[ -z "$PhoneToMount_Temp" ] && notify-send "No phone selected" && exit
