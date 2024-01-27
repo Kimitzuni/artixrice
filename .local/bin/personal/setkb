@@ -1,0 +1,13 @@
+#!/bin/bash
+
+Keymap=$1
+[ -z "$1" ] && Keymap="gb"
+
+xset r rate 300 50
+setxkbmap $Keymap
+
+
+notify-send \
+	"Keyboard Layout" \
+	"Keyboard layout has been set to <b>$Keymap</b>" \
+	--icon=/usr/share/icons/Papirus/32x32/devices/keyboard.svg

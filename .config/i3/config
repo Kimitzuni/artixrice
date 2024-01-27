@@ -14,19 +14,26 @@ font pango:monospace 9
 default_border pixel 1
 default_floating_border pixel 1
 
+client.focused          #FF0000 #FF0000 #ffffff #660000
 
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status pkill -RTMIN+4 i3blocks
+set $refresh_brightness pkill -RTMIN+1 i3blocks
+
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
-bindsym XF86MonBrightnessUp exec xbacklight -inc 10
-bindsym XF86MonBrightnessDown exec xbacklight -dec 10
+bindsym XF86MonBrightnessUp exec xbacklight -inc 10 && $refresh_brightness
+bindsym XF86MonBrightnessDown exec xbacklight -dec 10 && $refresh_brightness
+bindsym XF86AudioPlay exec mpdcontrol toggle
+bindsym XF86AudioStop exec mpdcontrol stop
+bindsym XF86AudioPrev exec mpdcontrol prev
+bindsym XF86AudioNext exec mpdcontrol next
 
 floating_modifier $mod
 
@@ -43,15 +50,20 @@ bindsym $win+Shift+minus gaps outer all minus 10
 bindsym $win+plus gaps inner all plus 10
 bindsym $win+minus gaps inner all minus 10
 
+bindsym Print exec scrot
+bindsym F2 exec setkb
+bindsym F12 exec toggle-compositor
+
 bindsym $win+0 exec "i3-msg gaps inner all set 15 && i3-msg gaps outer all set 15"
 
 bindsym $win+d exec dm-mounter
-bindsym $win+w exec firefox
-bindsym $win+p exec "passmenu -l 15 -p 'Select Password: '"
+bindsym $win+w exec qutebrowser
 bindsym $win+a exec st -e ncmpcpp
 bindsym $win+m exec st -e neomutt
+bindsym $win+v exec st -e pulsemixer
+bindsym $win+p exec st -e ncmpcpp
 bindsym $win+Shift+m exec update-mail
-
+bindsym $win+Shift+v exec rescan-mpd
 
 bindsym $mod+h focus left
 bindsym $mod+j focus down
