@@ -1,21 +1,28 @@
 #!/bin/bash
 
-MPC="mpc -h 127.0.0.1 -p 6600"
+##
+## VARIABLES
+##
+mpc="mpc -h 127.0.0.1 -p 6600"
 MusicDirectory="$(awk '/^music_directory/ {print $2}' $HOME/.config/mpd/mpd.conf | sed 's/"//g')"
+IsPlaying=1
 
-CurrentSong="$($MPC status --format="%artist% - %title%" | head -n1)"
-Song="$($MPC status --format="%title%" | head -n1)"
-Artist="$($MPC status --format="%artist%" | head -n1)"
-Album="$($MPC status --format="%album%" | head -n1)"
-Year="$($MPC status --format="%date%" | head -n1 | sed 's/-.*//')"
-Artwork="$MusicDirectory/$($MPC status --format="%file%" | head -n1 | awk -F'/' '{print $1 "/" $2 "/cover.jpg"}')"
+Song="$($mpc status --format="%title%" | head -n1)"
+Artist="$($mpc status --format="%artist%" | head -n1)"
+Album="$($mpc status --format="%album%" | head -n1)"
+Year="$($mpc status --format="%date%" | head -n1 | sed 's/-.*//')"
 
-[ ! -z "$(echo $CurrentSong | grep 'consume:')" ] && CurrentSong="Not Playing"
+CurrentAlbumPath="$($mpc status --format="%file%" | head -n1 | awk -F'/' '{print $1 "/" $2}')"
+Artwork="$MusicDirectory/$CurrentAlbumPath/cover.jpg"
+
+CurrentSong="$Artist - $Song"
+
+[ ! -z "$(echo "$Song" | grep 'repeat')" ] && CurrentSong="Not Playing" && IsPlaying=0
 
 echo " 💿 $CurrentSong "
 
 case $BLOCK_BUTTON in
-	"1") [ -z "$(echo "$CurrentSong" | grep 'consume:')" ] && notify-send \
+	"1") [ "$IsPlaying" = "1" ] && notify-send \
 		"$Song" \
 		"$Artist\n$Album\n$Year" \
 		--icon="$Artwork" \
