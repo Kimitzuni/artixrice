@@ -10,6 +10,14 @@ for i in /sys/class/power_supply/BAT?; do
 	esac
 
 	printf " $Prefix $Capacity%% "
+
+	case $BLOCK_BUTTON in
+		"1") dunstify \
+			"Battery Status" \
+			"Status: $Status\nCapacity: $Capacity%" \
+			--icon="/usr/share/icons/Papirus/32x32/devices/battery.svg" \
+			-h int:value:$Capacity;;
+	esac
 done
 
 printf "\n"
