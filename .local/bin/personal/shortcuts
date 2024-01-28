@@ -75,7 +75,30 @@ EOF
 	log "fish"
 }
 
-create-qutebrowser-keys
-create-posix-shortcuts
-create-ranger-shortcuts
-create-fish-shortcuts
+show-help-text() {
+	cat << EOF
+shortcuts
+=========
+
+A Small Shell Script to Generate Shortcuts from $HOME/.local/share/shortcuts
+
+-------------------------------------------------------------------------
+
+-q / --qutebrowser		Generate for Qutebrowser
+-f / --fish			Generate for the Fish Shell
+-p / --posix / -s / --shell	Generate for POSIX Shells (ZSH and Bash)
+-r / --ranger			Generate for the Ranger File Manager
+
+If no argument is given, then shortcuts for everything will be generated.
+
+EOF
+}
+
+case $1 in
+	"-q"|"--qutebrowser") create-qutebrowser-keys;;
+	"-p"|"--posix"|"-s"|"--shell") create-posix-shortcuts && create-fish-shortcuts;;
+	"-f"|"--fish") create-fish-shortcuts;;
+	"-r"|"--ranger") create-ranger-shortcuts;;
+	"-h"|"--help") show-help-text;;
+	*) create-qutebrowser-keys && create-posix-shortcuts && create-ranger-shortcuts && create-fish-shortcuts;;
+esac
