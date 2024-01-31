@@ -1,12 +1,15 @@
 #!/bin/bash
 
+NumberOfBatteries="$(ls /sys/class/power_supply/ | grep 'BAT' | wc -l)"
+[ "$NumberOfBatteries" = "0" ] && printf " No Batteries Installed \n" && exit
+
 for i in /sys/class/power_supply/BAT?; do
 	Capacity="$(cat $i/capacity)"
 	Status="$(cat $i/status)"
 
 	case $(cat $i/status) in
 		"Charging") Prefix="🔌";;
-		"Discharging"|"Not charging"|"Unknown") Prefix="🔋";;
+		"Discharging"|"Not charging"|"Unknown"|"Full") Prefix="🔋";;
 	esac
 
 	printf " $Prefix $Capacity%% "
